@@ -1,0 +1,6 @@
+*.terraform
+*.terraform.*
+.terraformignore
+*.ipynb
+*__pycache__*
+*__init__*
