@@ -1,10 +1,10 @@
 data "aws_iam_policy_document" "glue_role" {
   statement {
-    sid     = "RoleFor${var.name}"
+    sid     = "1"
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
-      identifiers = ["glue.amazon.com"]
+      identifiers = ["glue.amazonaws.com"]
     }
     effect = "Allow"
   }
@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "glue_policy" {
     actions = [
         "glue:*",
         "s3:ListBucket",
-        "s3:ListAllMyBuckets",
+        "s3:*",
         "ec2:DescribeVpcEndpoints",
         "ec2:DescribeRouteTables",
         "ec2:CreateNetworkInterface",
@@ -28,14 +28,13 @@ data "aws_iam_policy_document" "glue_policy" {
         "iam:ListRolePolicies",
         "iam:GetRole",
         "iam:GetRolePolicies",
-        "cloudwatch:PutMetricData"
+        "cloudwatch:PutMetricData",
+        "lambda:invoke",
+        "logs:*"
     ]
     resources = [
       "*"
     ]
-  }
-  statement {
-    
   }
 }
 
@@ -49,7 +48,7 @@ resource "aws_iam_role" "glue_role" {
   name = "${var.name}_role"
   description = "Glue Role for ${var.name}"
 
-  assume_role_policy = data.aws_iam_policy_document.glue_role.id
+  assume_role_policy = data.aws_iam_policy_document.glue_role.json
 
   lifecycle {
     create_before_destroy = true

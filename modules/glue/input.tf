@@ -41,3 +41,8 @@ variable "max_concurrent_runs" {
 variable "runtime_arguments" {
   type = string
 }
+
+variable "create_database" {
+  type    = bool
+  default = false
+}

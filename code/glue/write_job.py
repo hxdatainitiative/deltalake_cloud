@@ -2,23 +2,27 @@
 from awsglue.context import GlueContext
 from pyspark.context import SparkContext
 
+from pyspark.sql.session import SparkSession
+from pyspark.sql.types import *
+
 # Crear un contexto de Spark y Glue
 sc = SparkContext()
 glueContext = GlueContext(sc)
+logger = glueContext.get_logger()
 
-source_data_location = "s3://ruta/datos_origen"
+logger.info("#=# Creating Spark session")
+spark = SparkSession \
+.builder \
+.config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+.config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+.getOrCreate()
 
-delta_data_location = "s3://ruta/delta_lake"
+source_data_location = "s3://hx-datainitiative-drop-zone/deltalake/data/financial/yfinance/price_data/"
 
-database_name = "nombre_basededatos"
-table_name = "nombre_tabla"
+logger.info("#=# Read parquet from source")
+spark_df = spark.read.parquet(source_data_location)
 
-source_dynamic_frame = glueContext.create_dynamic_frame.from_catalog(database="basededatos_origen", table_name="tabla_origen")
+delta_data_location = "s3://hx-datainitiative-processed/deltalake/finance/price_data/"
 
-source_data_frame = source_dynamic_frame.toDF()
-
-source_data_frame.write.format("delta").mode("overwrite").save(delta_data_location)
-
-glueContext.create_dynamic_frame.from_catalog(database=database_name, table_name=table_name, transformation_ctx="table").write.format("delta").save(delta_data_location)
-
-print("La tabla Delta Lake ha sido creada exitosamente.")
+logger.info("#=# Writing tables to processed location")
+spark_df.repartition("date").write.format("delta").mode("append").partitionBy("date").save(delta_data_location)

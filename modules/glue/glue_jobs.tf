@@ -19,3 +19,7 @@ resource "aws_glue_job" "glue_job" {
 
   default_arguments = tomap(jsondecode(var.runtime_arguments))
 }
+
+resource "aws_cloudwatch_log_group" "glue_log_group" {
+  name = "/aws/glue/${var.name}/output"
+}
