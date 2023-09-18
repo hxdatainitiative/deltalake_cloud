@@ -3,6 +3,7 @@ locals {
   owner               = "fmeza@hexacta.com"
   manager             = "Fernando Meza"
   project_name        = "deltalake"
+  project_prefix      = "hx_${local.project_name}"
   backend_key         = "data_initiative/templates"
   delete_protection   = false
   
