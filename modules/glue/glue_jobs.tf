@@ -1,4 +1,5 @@
 resource "aws_glue_job" "glue_job" {
+  count             = var.create_job ? 1 : 0
   name              = var.name
   description       = var.description
   role_arn          = aws_iam_role.glue_role.arn
@@ -6,7 +7,7 @@ resource "aws_glue_job" "glue_job" {
   timeout           = var.timeout
   worker_type       = var.worker_type
   number_of_workers = var.number_of_workers
-#   connections       = var.glue_connection_names
+  #   connections       = var.glue_connection_names
 
   command {
     python_version  = 3

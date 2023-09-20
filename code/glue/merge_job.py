@@ -5,7 +5,7 @@ from pyspark.context import SparkContext
 
 from pyspark.sql.session import SparkSession
 from pyspark.sql.types import *
-from pyspark.sql.functions import expr,col
+from pyspark.sql.functions import expr
 
 from delta.tables import DeltaTable
 
@@ -18,11 +18,8 @@ sc = SparkContext()
 glueContext = GlueContext(sc)
 logger = glueContext.get_logger()
 
-args = getResolvedOptions(sys.argv,
-                          [
-                           'file_to_process'
-                           ]
-                          )
+args = getResolvedOptions(sys.argv,['file_to_process'])
+file = args["file_to_process"]
 
 logger.info("#=# Creating Spark session")
 spark = (
@@ -32,17 +29,22 @@ spark = (
     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
     .getOrCreate()
     )
-file = args["file_to_process"]
-source_data_location = file
+
+
+if file!="-":
+    source_data_location = file
+else:
+    source_data_location = "s3://hx-datainitiative-drop-zone/deltalake/data/financial/yfinance/price_data/"
 spark_df = spark.read.parquet(source_data_location)
 
 delta_table_location = "s3://hx-datainitiative-processed/deltalake/finance/price_data/"
 delta_table = DeltaTable.forPath(spark,delta_table_location)
 
-final_df = (delta_table.alias("target").merge(
-    source=spark_df.alias("source"),
-    condition=expr("target.date = source.date and target.ticker = source.ticker"))
-    .whenMatchedUpdateAll()
-    .whenNotMatchedInsertAll()
+delta_table.alias("target")\
+    .merge(
+        source=spark_df.alias("source"),
+        condition=expr("target.date = source.date and target.ticker = source.ticker")
+        )\
+    .whenMatchedUpdateAll()\
+    .whenNotMatchedInsertAll()\
     .execute()
-)
