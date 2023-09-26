@@ -43,3 +43,15 @@ module "merge_job" {
     }
   )
 }
+
+module "default_database" {
+  source = "../modules/glue"
+  
+  # Database
+  database_name = "hx-db-main"
+
+  # Definition of crawler for this database
+  crawler_name              = "${local.project_name}-crawler"
+  delta_tables_locations    = ["s3://hx-datainitiative-processed/deltalake/finance/price_data/"]
+  create_native_delta_table = true
+}
