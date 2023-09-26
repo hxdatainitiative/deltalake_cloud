@@ -22,5 +22,5 @@ resource "aws_glue_job" "glue_job" {
 }
 
 resource "aws_cloudwatch_log_group" "glue_log_group" {
-  name = "/aws/glue/${var.name}/output"
+  name = "/aws/glue/${local.name}/output"
 }

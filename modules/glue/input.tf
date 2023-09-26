@@ -1,5 +1,5 @@
 variable "name" {
-  type = string
+  type    = string
   default = "no name"
 }
 
@@ -53,12 +53,36 @@ variable "runtime_arguments" {
   default = ""
 }
 
-variable "create_database" {
-  type    = bool
-  default = false
+variable "database_name" {
+  type    = string
+  default = "None"
 }
 
 variable "create_job" {
   type    = bool
   default = false
+}
+
+variable "crawler_name" {
+  type    = string
+  default = "None"
+}
+
+variable "create_native_delta_table" {
+  type    = bool
+  default = true
+}
+
+variable "delta_tables_locations" {
+  type    = list
+  default = []
+}
+
+variable "write_manifest" {
+  type    = bool
+  default = false
+}
+
+locals {
+  name = var.name != "no name" ? var.name : var.crawler_name
 }

@@ -11,6 +11,7 @@ data "aws_iam_policy_document" "glue_role" {
 }
 
 data "aws_iam_policy_document" "glue_policy" {
+  # Upcoming version 
   statement {
     effect = "Allow"
     actions = [
@@ -39,13 +40,13 @@ data "aws_iam_policy_document" "glue_policy" {
 }
 
 resource "aws_iam_policy" "glue_policy" {
-  name        = "${var.name}-glue-service-policy"
+  name        = "${local.name}-glue-service-policy"
   description = "Policy to use in Glue"
   policy      = data.aws_iam_policy_document.glue_policy.json
 }
 
 resource "aws_iam_role" "glue_role" {
-  name        = "${var.name}_role"
+  name        = "${local.name}_role"
   description = "Glue Role for ${var.name}"
 
   assume_role_policy = data.aws_iam_policy_document.glue_role.json

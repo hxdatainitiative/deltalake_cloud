@@ -35,12 +35,10 @@ spark_df = spark_df.dropDuplicates()
 delta_data_location = "s3://hx-datainitiative-processed/deltalake/finance/price_data/"
 
 logger.info("#=# Writing tables to processed location")
-spark_df.write\
-        .option("mergeSchema", "true")\
-        .save(delta_data_location)
-        
+       
 spark_df.write\
         .format("delta")\
         .mode("append")\
+        .option("mergeSchema", "true")\
         .partitionBy("ticker")\
         .save(delta_data_location)
